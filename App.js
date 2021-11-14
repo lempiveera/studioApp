@@ -12,7 +12,7 @@ import Sumu from './components/Sumu';
 
 export default function App() {
 
-//  const Tab = createBottomTabNavigator();
+  const Tab = createBottomTabNavigator();
 
   return (
 

@@ -7,7 +7,6 @@ export default function Sumu() {
 
     return(
         <View style={styles.container}>
-            <Text>Sumu</Text>
         </View>
     )
 }

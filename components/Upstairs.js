@@ -7,7 +7,6 @@ export default function Upstairs() {
 
     return(
         <View style={styles.container}>
-            <Text>Upstairs</Text>
         </View>
     )
 }
