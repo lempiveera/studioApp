@@ -1,13 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { TabView, SceneMap } from 'react-native-tab-view';
+
+import Downstairs from './components/Downstairs';
+import Upstairs from './components/Upstairs';
+import Sumu from './components/Sumu';
+
 
 export default function App() {
+
+//  const Tab = createBottomTabNavigator();
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+
+    <NavigationContainer>
+      <Tab.Navigator>
+        <Tab.Screen name="Upstairs" component={Upstairs} />
+        <Tab.Screen name="Downstairs" component={Downstairs} />
+        <Tab.Screen name="Sumu" component={Sumu} />
+      </Tab.Navigator>
+    </NavigationContainer>
+
   );
 }
 
