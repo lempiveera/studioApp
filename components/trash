@@ -1,0 +1,24 @@
+{({ item }) => (
+                        <View style={styles.listContainer2}>
+                            <SwipeView
+                                disableSwiptetoRight={false}
+                                renderVisibleContent={() => <Text style={styles.text}>SwipeMe</Text>}
+                                renderRightView={() => (
+                                    <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', backgroundColor: 'red' }}>
+
+                                    </View>
+                                )}
+//yea the swipething is not gonna work for now, look into options 
+                            //    leftOpenValue={this.leftOpenValue}
+                            //    rightOpenValue={this.rightOpenValue}
+                                onSwipedLeft={() => alert("deleted")}
+                                swipeDuration={300}
+                                swipeToOpenPercent={40}
+                                disableSwipeToRight={true}
+                            />
+                        </View>
+                    )
+                    }
+
+
+                    
