@@ -3,14 +3,24 @@ import { StyleSheet, Text, View, TextInput, FlatList, Button, ScrollView, Platfo
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
 import getDistance from 'geolib/es/getDistance';
-import { Permission, Notifications } from 'expo';
+
+
+// Show notifications when the app is in the foreground
+Notifications.setNotificationHandler({
+    handleNotification: async () => {
+        return {
+            shouldShowAlert: true,
+        }
+    },
+});
 
 export default function Map() {
 
-    //okay were gonna do it this way for now, separate component for handling textinput?
     const [location, setLocation] = useState(null);
     const [userLat, setUserLat] = useState(0.0);
     const [userLong, setUserLong] = useState(0.0);
@@ -27,6 +37,10 @@ export default function Map() {
             { latitude: sumuloc.lat, longitude: sumuloc.long }
         ));
         console.log(sdistance)
+
+        if(sdistance < 500) {
+            triggerSUMUNotification();
+        }
     }
 
     const calculateDistancetoNilsu = () => {
@@ -35,8 +49,12 @@ export default function Map() {
             { latitude: nilsuloc.lat, longitude: nilsuloc.long }
         ));
         console.log(ndistance)
+        if(ndistance < 500) {
+            triggerN10Notification();
+        }
     }
 
+    //location permissions
     const getLocationAsync = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -48,7 +66,17 @@ export default function Map() {
         setLocation(location);
     }
 
-    //calculates user location every 2mins
+    /*sets user location when rendering the first time
+    useEffect(() => {
+        getLocationAsync();
+        setUserLat(location.coords.latitude);
+        console.log(userLat);
+        setUserLong(location.coords.longitude);
+        console.log(userLong);
+    }, []);
+*/
+
+    //checks user loc every 5 mins
     useEffect(() => {
         const timer = setInterval(() => {
             getLocationAsync();
@@ -57,67 +85,66 @@ export default function Map() {
             setUserLong(location.coords.longitude);
             console.log(userLong);
             console.log('should log every 5 mins')
-        }, 50000);
+        }, 50000); //if this is like this it will get the location first time only after 5mins but it maybe doesnt matter?
         return () => {
             clearInterval(timer);
         }
     }, [location]);
 
-    //    const componentDidMount = () => {
-    //        if (Platform.OS === 'android' && !CONSTANTS.isDevice) {
-    //            Alert.alert('Only works with android!');
-    //        } else {
-    //            setInterval(getLocationAsync.bind(), 2000);
-    //            console.log('should log every two seconds')
-    //            console.log(location);
-    //    }
-    //    };
 
-    //might have to edit this so location things arent tied to rendering
-    /*    useEffect(() => {
-            (async () => {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert('No permission to get location')
-                    return;
-                }
-    
-                let location = await Location.getCurrentPositionAsync({});
-                setLocation(location);
-                console.log(location);
-                setUserLat(location.coords.latitude);
-                setUserLong(location.coords.longitude);
-                console.log(userLat);
-                console.log(userLong); //these log 0 or the real numbers? i think cause the async func it hasnt had the time to put real values yet
-            })();
-        }, []);
+    //notification permissions
+    /* TODO: fix this warning if time : expo-permissions is now deprecated —
+    the functionality has been moved to other expo packages that directly use these permissions 
+    (e.g. expo-location, expo-camera). The package will be removed in the upcoming releases.
     */
 
-    registerForPushNotificationsAsync = async () => {
+    //Permissions for notifications, dunno i guess it works now but i think i should clean it more
+    useEffect(() => {
+        // Permission for iOS
+        //Permissions.getAsync(Permissions.NOTIFICATIONS)
+        Notifications.requestPermissionsAsync()
+            .then(statusObj => {
+                // Check if we already have permission
+                if (statusObj.status !== "granted") {
+                    // If permission is not there, ask for the same
+                    return Notifications.requestPermissionsAsync()
+                }
+                return statusObj
+            })
+            .then(statusObj => {
+                // If permission is still not given throw error
+                if (statusObj.status !== "granted") {
+                    throw new Error("Permission not granted")
+                }
+            })
+            .catch(err => {
+                return null
+            })
+    }, []);
 
-        //checks what the current state of the permissions is
-        const { status: existingStatus } = await Permissions.getAsync(
-            Permissions.NOTIFICATIONS
-        );
-
-        let finalStatus = existingStatus;
-
-        //if not granted it will ask the user to allow notifications
-        if (existingStatus !== 'granted') {
-            const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-            finalStatus = status;
-        }
-
-        //if user denies permissions the function will end
-        if (finalStatus !== 'granted') {
-            return;
-        }
-
-        //if user gives permissions we save it to a token (or something like that)
-        let token = await Notifications.getExpoPushTokenAsync();
-    }
-
-
+    //trigger notification when under 500m from n10
+    const triggerN10Notification = () => {
+        Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Hiya!",
+                body: "You are in a distance of under 500m from n10",
+            },
+            trigger: { seconds: 1 },
+        })
+        console.log('sent notification');
+    };
+    
+    //trigger notification when under 500m from SUMU
+    const triggerSUMUNotification = () => {
+        Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Hiya!",
+                body: "You are in a distance of under 500m from SUMU",
+            },
+            trigger: { seconds: 1 },
+        })
+        console.log('sent notification');
+    };
 
     return (
         <ScrollView>

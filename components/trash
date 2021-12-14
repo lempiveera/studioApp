@@ -1,4 +1,4 @@
-{({ item }) => (
+/* {({ item }) => (
                         <View style={styles.listContainer2}>
                             <SwipeView
                                 disableSwiptetoRight={false}
@@ -21,4 +21,111 @@
                     }
 
 
-                    
+notification shit 
+PushNotification.configure({
+
+    onRegister: function (token) {
+      console.log("TOKEN:", token);
+    },
+
+    onNotification: function (notification) {
+      console.log("NOTIFICATION:", notification);
+      //notification.finish(PushNotificationIOS.FetchResult.NoData);
+    },
+  
+    permissions: {
+      alert: true,
+      badge: true,
+      sound: true,
+    },
+
+    popInitialNotification: true,
+    requestPermissions: true,
+  });
+
+  const testPush = () => {
+    PushNotification.localNotification({
+        title: 'notification title',
+        message: 'notification message'
+    });
+}
+
+
+    //location permissions
+    const getLocationAsync = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+          Alert.alert('No permission to get location')
+          return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+  }
+
+      
+        registerForPushNotificationsAsync = async () => {
+    
+            //checks what the current state of the permissions is
+            const { status: existingStatus } = await Permissions.getAsync(
+                Permissions.NOTIFICATIONS
+            );
+    
+            let finalStatus = existingStatus;
+    
+            //if not granted it will ask the user to allow notifications
+            if (existingStatus !== 'granted') {
+                const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+                finalStatus = status;
+            }
+    
+            //if user denies permissions the function will end
+            if (finalStatus !== 'granted') {
+                return;
+            }
+    
+            //if user gives permissions we save it to a token (or something like that)
+            let token = await Notifications.getExpoPushTokenAsync();
+        }
+    
+    
+        const createChannels = () => {
+            PushNotification.createChannel({
+                channelId: "test-channel",
+                channelName: "Test Channel"
+            })
+        }
+    // TODO: YOU ARE HERE ERROR IS "null is not an object (evaluating 'RNPushNotification.createChannel')"
+        const handleNotification = () => {
+            PushNotification.localNotification({
+                channelId: "test-channel",
+                title: "You cliked show notification",
+                message: "message",
+            });
+        }
+    */
+
+
+
+        /*notification permiossions
+    askPermissions = async () => {
+        const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+        let finalStatus = existingStatus;
+        if (existingStatus !== "granted") {
+            const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+            finalStatus = status;
+        }
+        if (finalStatus !== "granted") {
+            return false;
+        }
+        return true;
+    };
+
+    const sendNotificationImmediately = async () => {
+        let notificationId = await Notifications.presentLocalNotificationAsync({
+          title: 'This is crazy',
+          body: 'Your mind will blow after reading this',
+        });
+        console.log(notificationId); // can be saved in AsyncStorage or send to server
+      };
+*/
