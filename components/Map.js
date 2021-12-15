@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, Button, ScrollView, Platform, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, FlatList, Button, ScrollView, Platform, Alert, Pressable } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import styles from './Style';
 
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
@@ -31,14 +33,14 @@ export default function Map() {
 
     //doing two of these one for sumu one for nilsu, can probably do it better..
     const calculateDistancetoSumu = () => {
-        getLocationAsync();
+        //getLocationAsync();
         setsDistance(getDistance(
             { latitude: userLat, longitude: userLong },
             { latitude: sumuloc.lat, longitude: sumuloc.long }
         ));
         console.log(sdistance)
 
-        if(sdistance < 500) {
+        if (sdistance < 500) {
             triggerSUMUNotification();
         }
     }
@@ -49,49 +51,55 @@ export default function Map() {
             { latitude: nilsuloc.lat, longitude: nilsuloc.long }
         ));
         console.log(ndistance)
-        if(ndistance < 500) {
+        if (ndistance < 500) {
             triggerN10Notification();
         }
     }
 
-    //location permissions
-    const getLocationAsync = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('No permission to get location')
-            return;
-        }
-
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
-    }
-
-    /*sets user location when rendering the first time
+    //  A working way to render the location when opening the app
     useEffect(() => {
-        getLocationAsync();
-        setUserLat(location.coords.latitude);
-        console.log(userLat);
-        setUserLong(location.coords.longitude);
-        console.log(userLong);
-    }, []);
-*/
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('No permission to get location')
+                return;
+            }
 
-    //checks user loc every 5 mins
-    useEffect(() => {
-        const timer = setInterval(() => {
-            getLocationAsync();
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
             setUserLat(location.coords.latitude);
             console.log(userLat);
             setUserLong(location.coords.longitude);
             console.log(userLong);
-            console.log('should log every 5 mins')
+        })();
+    }, []);
+
+    //location permissions
+    const getLocation = () => {
+        let location = Location.getCurrentPositionAsync({});
+        setLocation(location);
+        console.log(location);
+    }
+
+
+    //checks user loc every 5 mins
+    /*TODO: FIX THESEEEE
+    useEffect(() => {
+        const timer = setInterval(() => {
+            getLocation();
+            // console.log('timerlocation' + location);
+            // setUserLat(location.coords.latitude);
+            // console.log(userLat);
+            // setUserLong(location.coords.longitude);
+            // console.log(userLong);
+            // console.log('should log every 5 mins')
         }, 50000); //if this is like this it will get the location first time only after 5mins but it maybe doesnt matter?
         return () => {
             clearInterval(timer);
         }
     }, [location]);
 
-
+*/
     //notification permissions
     /* TODO: fix this warning if time : expo-permissions is now deprecated —
     the functionality has been moved to other expo packages that directly use these permissions 
@@ -99,6 +107,7 @@ export default function Map() {
     */
 
     //Permissions for notifications, dunno i guess it works now but i think i should clean it more
+    //these are only for IOS i guess? so dont really need them yet...
     useEffect(() => {
         // Permission for iOS
         //Permissions.getAsync(Permissions.NOTIFICATIONS)
@@ -133,7 +142,7 @@ export default function Map() {
         })
         console.log('sent notification');
     };
-    
+
     //trigger notification when under 500m from SUMU
     const triggerSUMUNotification = () => {
         Notifications.scheduleNotificationAsync({
@@ -150,6 +159,7 @@ export default function Map() {
         <ScrollView>
             <View style={styles.container}>
                 <MapView
+                    userInterfaceStyle={'dark'}
                     style={styles.mapContainer}
                     region={{
                         latitude: userLat,
@@ -165,34 +175,19 @@ export default function Map() {
                         title='meikä' />
                 </MapView>
                 <View style={styles.buttonContainer}>
-                    <Button onPress={calculateDistancetoSumu} title="calculate distance to sumu" />
-                    <Text>Device distance to sumu {sdistance}m</Text>
-                    <Button onPress={calculateDistancetoNilsu} title="calculate distance to N10" />
-                    <Text>Device distance to N10 {ndistance}m</Text>
+                    <Text> </Text>
+                    <Pressable style={styles.button2} onPress={calculateDistancetoSumu}>
+                        <Text style={styles.text2}>calculate distance to Sumu</Text>
+                    </Pressable>
+                    {/* <Button onPress={calculateDistancetoSumu} title="calculate distance to sumu" /> */}
+                    <Text style={styles.text1}>Device distance to sumu {sdistance}m</Text>
+                    <Pressable style={styles.button2} onPress={calculateDistancetoNilsu}>
+                        <Text style={styles.text2}>calculate distance to N10</Text>
+                    </Pressable>
+                    {/* <Button onPress={calculateDistancetoNilsu} title="calculate distance to N10" /> */}
+                    <Text style={styles.text1}>Device distance to N10 {ndistance}m</Text>
                 </View>
             </View>
         </ScrollView>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    mapContainer: {
-        height: 400,
-        width: 400,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});

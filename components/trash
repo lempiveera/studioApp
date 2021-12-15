@@ -128,4 +128,15 @@ PushNotification.configure({
         });
         console.log(notificationId); // can be saved in AsyncStorage or send to server
       };
+
+                  <View style={styles.buttonContainer}>
+
+            </View>
+
+                buttonContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 */
