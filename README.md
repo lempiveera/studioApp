@@ -11,6 +11,6 @@ purposes.
 Clone this repository. Run npm install or yarn install in the project folder. Install expo app on your phone (from app store, or google play). Make sure your computer
 and mobile device are in the same network. Run expo start on your terminal. Using the expo app, read the QR-code and that should open the app on your phone. 
 ## Technologies
-The app is build with expo. The components are mostly build with react-natives or expos own libraries. Styling is done with react-native. Calculating distance is done
-with geolibs getDistance function. Notifications are using expo-notifications, and currently they are only running locally. Location is using expo-location. The database
+The app is build with expo. The components are mostly build with react-native's or expo's own libraries. Styling is done with react-native. Calculating distance is done
+with geolibs getDistance function. Notifications are using expo-notifications, and currently they are running only locally. Location is using expo-location. The database
 in use is Firebase realtime database. 
