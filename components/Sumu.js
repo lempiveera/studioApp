@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, ScrollView, Button, Pressable } from 'react-native';
-//import { Button } from 'react-native-elements';
-//import LinearGradient from 'react-native-linear-gradient';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { Text, View, TextInput, FlatList, ScrollView, Pressable } from 'react-native';
 
 import styles from './Style';
 
@@ -15,11 +12,10 @@ const database = getDatabase(app);
 
 export default function Sumu() {
 
-    //okay were gonna do it this way for now, separate component for handling textinput?
-
     const [who, setWho] = useState('');
     const [here, setHere] = useState([]);
 
+    //saving person to database
     const saveWho = () => {
         push(ref(database, 'inSumu/'), {
             'who': who
@@ -27,6 +23,7 @@ export default function Sumu() {
         setWho('');
     }
 
+    //deleting person from database
     const deleteWho = (who) => {
         const hereRef = ref(database, 'inSumu/');
 
@@ -48,14 +45,16 @@ export default function Sumu() {
         })
     }
 
-    //This breaks if theres nothing in the database, should it be initialized somehow?
+    //rendering database everytime it changes
     useEffect(() => {
         const hereRef = ref(database, 'inSumu/')
         onValue(hereRef, (snapshot) => {
             const data = snapshot.val();
-            //console.log(Object.keys(data))
-            //console.log(data);
-            setHere(Object.values(data));
+            if (data === null) {
+                setHere([]);
+            } else {
+                setHere(Object.values(data));
+            }
         })
     }, []);
 
@@ -65,17 +64,16 @@ export default function Sumu() {
             <ScrollView>
                 <View style={styles.inputContainer}>
                     <Text style={styles.text3}>Are you in Sumu? Enter name here</Text>
-                    <Text>  HAHA</Text>
+                    <Text>  </Text>
                     <TextInput
                         value={who}
                         onChangeText={text => setWho(text)}
                         style={{ width: 200, borderColor: 'gray', borderWidth: 1, color: 'white' }}
                     />
-                    <Text> second haha</Text>
+                    <Text> </Text>
                     <Pressable style={styles.button1} onPress={saveWho}>
                         <Text style={styles.text1}>add to list</Text>
                     </Pressable>
-                    {/* <Button onPress={saveWho} title="add to list" type='outline' /> */}
                 </View>
             </ScrollView>
             <FlatList
@@ -83,11 +81,10 @@ export default function Sumu() {
                 renderItem={({ item }) =>
                     <View style={styles.listContainer}>
                         <Text style={styles.text4}>{item.who}</Text>
-                        <Text>can i do it like this</Text>
+                        <Text>                </Text>
                         <Pressable style={styles.button2} onPress={() => deleteWho(item.who)}>
                             <Text style={styles.text2}>I went home</Text>
                         </Pressable>
-                        {/* <Button onPress={() => deleteWho(item.who)} title="I went home" type='outline' /> */}
                     </View>}
                 keyExtractor={((item, index) => index.toString())}
             />
@@ -96,6 +93,4 @@ export default function Sumu() {
 
     )
 }
-//
-//<Button onPress={() => setHere([...here, { key: `${who}` }])} title="add to list" />
 

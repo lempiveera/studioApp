@@ -1,14 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import React from 'react';
+import { StyleSheet} from 'react-native';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { TabView, SceneMap } from 'react-native-tab-view';
+
 
 import { AntDesign, Entypo } from '@expo/vector-icons';
-
 import { AppRegistry } from 'react-native';
-import { Provider as PaperProvider } from 'react-native-paper';
 
 import Downstairs from './components/Downstairs';
 import Upstairs from './components/Upstairs';
@@ -27,10 +24,7 @@ export default function App() {
 
   const Tab = createBottomTabNavigator();
 
-  //notifications are gonna be hard
-
   return (
-    // OKAY U ARE HERE TRYING
     <NavigationContainer theme={MyTheme}>
       <Tab.Navigator>
         <Tab.Screen name="Upstairs" component={Upstairs}

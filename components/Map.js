@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, Button, ScrollView, Platform, Alert, Pressable } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, View, ScrollView, Alert, Pressable } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import getDistance from 'geolib/es/getDistance';    
 
 import styles from './Style';
 
 import * as Notifications from 'expo-notifications';
-import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
-import getDistance from 'geolib/es/getDistance';
 
 
 // Show notifications when the app is in the foreground
@@ -33,16 +30,10 @@ export default function Map() {
 
     //doing two of these one for sumu one for nilsu, can probably do it better..
     const calculateDistancetoSumu = () => {
-        //getLocationAsync();
         setsDistance(getDistance(
             { latitude: userLat, longitude: userLong },
             { latitude: sumuloc.lat, longitude: sumuloc.long }
         ));
-        console.log(sdistance)
-
-        if (sdistance < 500) {
-            triggerSUMUNotification();
-        }
     }
 
     const calculateDistancetoNilsu = () => {
@@ -50,13 +41,9 @@ export default function Map() {
             { latitude: userLat, longitude: userLong },
             { latitude: nilsuloc.lat, longitude: nilsuloc.long }
         ));
-        console.log(ndistance)
-        if (ndistance < 500) {
-            triggerN10Notification();
-        }
     }
 
-    //  A working way to render the location when opening the app
+    // Checks location permissions and renders location when opening app the first time, logs zeros though?
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -68,46 +55,40 @@ export default function Map() {
             let location = await Location.getCurrentPositionAsync({});
             setLocation(location);
             setUserLat(location.coords.latitude);
-            console.log(userLat);
             setUserLong(location.coords.longitude);
-            console.log(userLong);
+            console.log(userLong + " first render " + userLat);
         })();
     }, []);
 
-    //location permissions
-    const getLocation = () => {
-        let location = Location.getCurrentPositionAsync({});
+    // for getting location 
+    const getLocation = async () => {
+        let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
-        console.log(location);
+        setUserLat(location.coords.latitude);
+        setUserLong(location.coords.longitude);
+        //console.log(userLat + " " + userLong);
     }
 
-
-    //checks user loc every 5 mins
-    /*TODO: FIX THESEEEE
+    // cheking user location every minute, and sending notification if user close enough to a location.
     useEffect(() => {
         const timer = setInterval(() => {
             getLocation();
-            // console.log('timerlocation' + location);
-            // setUserLat(location.coords.latitude);
-            // console.log(userLat);
-            // setUserLong(location.coords.longitude);
-            // console.log(userLong);
-            // console.log('should log every 5 mins')
-        }, 50000); //if this is like this it will get the location first time only after 5mins but it maybe doesnt matter?
+            console.log(userLat + " every min render " + userLong);
+            calculateDistancetoNilsu();
+            calculateDistancetoSumu();
+            if (ndistance <= 500) {
+                triggerN10Notification();
+            }
+            if (sdistance <= 500) {
+                triggerSUMUNotification();
+            }
+        }, 10000);
         return () => {
             clearInterval(timer);
-        }
+        };
     }, [location]);
 
-*/
-    //notification permissions
-    /* TODO: fix this warning if time : expo-permissions is now deprecated —
-    the functionality has been moved to other expo packages that directly use these permissions 
-    (e.g. expo-location, expo-camera). The package will be removed in the upcoming releases.
-    */
 
-    //Permissions for notifications, dunno i guess it works now but i think i should clean it more
-    //these are only for IOS i guess? so dont really need them yet...
     useEffect(() => {
         // Permission for iOS
         //Permissions.getAsync(Permissions.NOTIFICATIONS)
@@ -131,7 +112,7 @@ export default function Map() {
             })
     }, []);
 
-    //trigger notification when under 500m from n10
+    //triggers n10 notification
     const triggerN10Notification = () => {
         Notifications.scheduleNotificationAsync({
             content: {
@@ -143,7 +124,7 @@ export default function Map() {
         console.log('sent notification');
     };
 
-    //trigger notification when under 500m from SUMU
+    //trigger sumu notification
     const triggerSUMUNotification = () => {
         Notifications.scheduleNotificationAsync({
             content: {
@@ -179,12 +160,10 @@ export default function Map() {
                     <Pressable style={styles.button2} onPress={calculateDistancetoSumu}>
                         <Text style={styles.text2}>calculate distance to Sumu</Text>
                     </Pressable>
-                    {/* <Button onPress={calculateDistancetoSumu} title="calculate distance to sumu" /> */}
                     <Text style={styles.text1}>Device distance to sumu {sdistance}m</Text>
                     <Pressable style={styles.button2} onPress={calculateDistancetoNilsu}>
                         <Text style={styles.text2}>calculate distance to N10</Text>
                     </Pressable>
-                    {/* <Button onPress={calculateDistancetoNilsu} title="calculate distance to N10" /> */}
                     <Text style={styles.text1}>Device distance to N10 {ndistance}m</Text>
                 </View>
             </View>
