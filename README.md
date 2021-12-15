@@ -7,6 +7,7 @@ user can see their own location, and calculate their distance to N10 (where two 
 checking the users location every minute, and if the user is within 500m of either of the locations, user will get an notification that they are within 500m of
 either N10 or sumu. This is how the app is currently working, in future development the location page is going to be removed, its currently there only for developing
 purposes. 
+
 ## How to try out the app
 Clone this repository. Run npm install or yarn install in the project folder. Install expo app on your phone (from app store, or google play). Make sure your computer
 and mobile device are in the same network. Run expo start on your terminal. Using the expo app, read the QR-code and that should open the app on your phone. 
